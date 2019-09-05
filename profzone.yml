@@ -1,0 +1,11 @@
+name: service-configurations
+group: profzone
+owner: johnnyeven
+version: 0.0.0
+description: 配置中心
+program_language: golang
+workflow:
+  extends: feature-pr
+scripts:
+  build: go build -v -o $PROJECT_NAME && libtools swagger
+  test: go test
