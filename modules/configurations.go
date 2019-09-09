@@ -11,11 +11,13 @@ import (
 
 type CreateConfigurationBody struct {
 	// StackID
-	StackID uint64 `db:"F_stack_id" json:"stackID,string"`
+	StackID uint64 `json:"stackID,string"`
 	// Key
-	Key string `db:"F_key" json:"key"`
+	Key string `json:"key"`
 	// Value
-	Value string `db:"F_value" json:"value"`
+	Value string `json:"value"`
+	// Remark
+	Remark string `json:"remark" default:""`
 }
 
 func CreateConfiguration(req CreateConfigurationBody, db *sqlx.DB, clientID client_id.ClientIDInterface) error {

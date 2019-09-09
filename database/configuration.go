@@ -20,6 +20,8 @@ type Configuration struct {
 	Key string `db:"F_key" json:"key" sql:"varchar(255) NOT NULL DEFAULT ''"`
 	// Value
 	Value string `db:"F_value" json:"value" sql:"varchar(255) NOT NULL DEFAULT ''"`
+	// Remark
+	Remark string `db:"F_remark" json:"remark" sql:"varchar(255) NOT NULL DEFAULT ''"`
 
 	presets.OperateTime
 	presets.SoftDelete

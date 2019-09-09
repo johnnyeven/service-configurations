@@ -34,6 +34,7 @@ type ConfigurationFields struct {
 	StackID         *github_com_johnnyeven_libtools_sqlx_builder.Column
 	Key             *github_com_johnnyeven_libtools_sqlx_builder.Column
 	Value           *github_com_johnnyeven_libtools_sqlx_builder.Column
+	Remark          *github_com_johnnyeven_libtools_sqlx_builder.Column
 	CreateTime      *github_com_johnnyeven_libtools_sqlx_builder.Column
 	UpdateTime      *github_com_johnnyeven_libtools_sqlx_builder.Column
 	Enabled         *github_com_johnnyeven_libtools_sqlx_builder.Column
@@ -45,6 +46,7 @@ var ConfigurationField = struct {
 	StackID         string
 	Key             string
 	Value           string
+	Remark          string
 	CreateTime      string
 	UpdateTime      string
 	Enabled         string
@@ -54,6 +56,7 @@ var ConfigurationField = struct {
 	StackID:         "StackID",
 	Key:             "Key",
 	Value:           "Value",
+	Remark:          "Remark",
 	CreateTime:      "CreateTime",
 	UpdateTime:      "UpdateTime",
 	Enabled:         "Enabled",
@@ -68,6 +71,7 @@ func (configuration *Configuration) Fields() *ConfigurationFields {
 		StackID:         table.F(ConfigurationField.StackID),
 		Key:             table.F(ConfigurationField.Key),
 		Value:           table.F(ConfigurationField.Value),
+		Remark:          table.F(ConfigurationField.Remark),
 		CreateTime:      table.F(ConfigurationField.CreateTime),
 		UpdateTime:      table.F(ConfigurationField.UpdateTime),
 		Enabled:         table.F(ConfigurationField.Enabled),
@@ -126,6 +130,7 @@ func (configuration *Configuration) Comments() map[string]string {
 		"Enabled":         "",
 		"ID":              "",
 		"Key":             "Key",
+		"Remark":          "Remark",
 		"StackID":         "StackID",
 		"UpdateTime":      "",
 		"Value":           "Value",
@@ -331,119 +336,6 @@ func (configuration *Configuration) SoftDeleteByID(db *github_com_johnnyeven_lib
 	return nil
 }
 
-func (configuration *Configuration) FetchByConfigurationID(db *github_com_johnnyeven_libtools_sqlx.DB) error {
-	configuration.Enabled = github_com_johnnyeven_libtools_courier_enumeration.BOOL__TRUE
-
-	table := configuration.T()
-	stmt := table.Select().
-		Comment("Configuration.FetchByConfigurationID").
-		Where(github_com_johnnyeven_libtools_sqlx_builder.And(
-			table.F("ConfigurationID").Eq(configuration.ConfigurationID),
-			table.F("Enabled").Eq(configuration.Enabled),
-		))
-
-	return db.Do(stmt).Scan(configuration).Err()
-}
-
-func (configuration *Configuration) FetchByConfigurationIDForUpdate(db *github_com_johnnyeven_libtools_sqlx.DB) error {
-	configuration.Enabled = github_com_johnnyeven_libtools_courier_enumeration.BOOL__TRUE
-
-	table := configuration.T()
-	stmt := table.Select().
-		Comment("Configuration.FetchByConfigurationIDForUpdate").
-		Where(github_com_johnnyeven_libtools_sqlx_builder.And(
-			table.F("ConfigurationID").Eq(configuration.ConfigurationID),
-			table.F("Enabled").Eq(configuration.Enabled),
-		)).
-		ForUpdate()
-
-	return db.Do(stmt).Scan(configuration).Err()
-}
-
-func (configuration *Configuration) DeleteByConfigurationID(db *github_com_johnnyeven_libtools_sqlx.DB) error {
-	configuration.Enabled = github_com_johnnyeven_libtools_courier_enumeration.BOOL__TRUE
-
-	table := configuration.T()
-	stmt := table.Delete().
-		Comment("Configuration.DeleteByConfigurationID").
-		Where(github_com_johnnyeven_libtools_sqlx_builder.And(
-			table.F("ConfigurationID").Eq(configuration.ConfigurationID),
-			table.F("Enabled").Eq(configuration.Enabled),
-		))
-
-	return db.Do(stmt).Scan(configuration).Err()
-}
-
-func (configuration *Configuration) UpdateByConfigurationIDWithMap(db *github_com_johnnyeven_libtools_sqlx.DB, fieldValues github_com_johnnyeven_libtools_sqlx_builder.FieldValues) error {
-
-	if _, ok := fieldValues["UpdateTime"]; !ok {
-		fieldValues["UpdateTime"] = github_com_johnnyeven_libtools_timelib.MySQLTimestamp(time.Now())
-	}
-
-	configuration.Enabled = github_com_johnnyeven_libtools_courier_enumeration.BOOL__TRUE
-
-	table := configuration.T()
-
-	delete(fieldValues, "ID")
-
-	stmt := table.Update().
-		Comment("Configuration.UpdateByConfigurationIDWithMap").
-		Set(table.AssignsByFieldValues(fieldValues)...).
-		Where(github_com_johnnyeven_libtools_sqlx_builder.And(
-			table.F("ConfigurationID").Eq(configuration.ConfigurationID),
-			table.F("Enabled").Eq(configuration.Enabled),
-		))
-
-	dbRet := db.Do(stmt).Scan(configuration)
-	err := dbRet.Err()
-	if err != nil {
-		return err
-	}
-
-	rowsAffected, _ := dbRet.RowsAffected()
-	if rowsAffected == 0 {
-		return configuration.FetchByConfigurationID(db)
-	}
-	return nil
-}
-
-func (configuration *Configuration) UpdateByConfigurationIDWithStruct(db *github_com_johnnyeven_libtools_sqlx.DB, zeroFields ...string) error {
-	fieldValues := github_com_johnnyeven_libtools_sqlx.FieldValuesFromStructByNonZero(configuration, zeroFields...)
-	return configuration.UpdateByConfigurationIDWithMap(db, fieldValues)
-}
-
-func (configuration *Configuration) SoftDeleteByConfigurationID(db *github_com_johnnyeven_libtools_sqlx.DB) error {
-	configuration.Enabled = github_com_johnnyeven_libtools_courier_enumeration.BOOL__TRUE
-
-	table := configuration.T()
-
-	fieldValues := github_com_johnnyeven_libtools_sqlx_builder.FieldValues{}
-	fieldValues["Enabled"] = github_com_johnnyeven_libtools_courier_enumeration.BOOL__FALSE
-
-	if _, ok := fieldValues["UpdateTime"]; !ok {
-		fieldValues["UpdateTime"] = github_com_johnnyeven_libtools_timelib.MySQLTimestamp(time.Now())
-	}
-
-	stmt := table.Update().
-		Comment("Configuration.SoftDeleteByConfigurationID").
-		Set(table.AssignsByFieldValues(fieldValues)...).
-		Where(github_com_johnnyeven_libtools_sqlx_builder.And(
-			table.F("ConfigurationID").Eq(configuration.ConfigurationID),
-			table.F("Enabled").Eq(configuration.Enabled),
-		))
-
-	dbRet := db.Do(stmt).Scan(configuration)
-	err := dbRet.Err()
-	if err != nil {
-		dbErr := github_com_johnnyeven_libtools_sqlx.DBErr(err)
-		if dbErr.IsConflict() {
-			return configuration.DeleteByConfigurationID(db)
-		}
-		return err
-	}
-	return nil
-}
-
 func (configuration *Configuration) FetchByStackIDAndKey(db *github_com_johnnyeven_libtools_sqlx.DB) error {
 	configuration.Enabled = github_com_johnnyeven_libtools_courier_enumeration.BOOL__TRUE
 
@@ -556,6 +448,119 @@ func (configuration *Configuration) SoftDeleteByStackIDAndKey(db *github_com_joh
 		dbErr := github_com_johnnyeven_libtools_sqlx.DBErr(err)
 		if dbErr.IsConflict() {
 			return configuration.DeleteByStackIDAndKey(db)
+		}
+		return err
+	}
+	return nil
+}
+
+func (configuration *Configuration) FetchByConfigurationID(db *github_com_johnnyeven_libtools_sqlx.DB) error {
+	configuration.Enabled = github_com_johnnyeven_libtools_courier_enumeration.BOOL__TRUE
+
+	table := configuration.T()
+	stmt := table.Select().
+		Comment("Configuration.FetchByConfigurationID").
+		Where(github_com_johnnyeven_libtools_sqlx_builder.And(
+			table.F("ConfigurationID").Eq(configuration.ConfigurationID),
+			table.F("Enabled").Eq(configuration.Enabled),
+		))
+
+	return db.Do(stmt).Scan(configuration).Err()
+}
+
+func (configuration *Configuration) FetchByConfigurationIDForUpdate(db *github_com_johnnyeven_libtools_sqlx.DB) error {
+	configuration.Enabled = github_com_johnnyeven_libtools_courier_enumeration.BOOL__TRUE
+
+	table := configuration.T()
+	stmt := table.Select().
+		Comment("Configuration.FetchByConfigurationIDForUpdate").
+		Where(github_com_johnnyeven_libtools_sqlx_builder.And(
+			table.F("ConfigurationID").Eq(configuration.ConfigurationID),
+			table.F("Enabled").Eq(configuration.Enabled),
+		)).
+		ForUpdate()
+
+	return db.Do(stmt).Scan(configuration).Err()
+}
+
+func (configuration *Configuration) DeleteByConfigurationID(db *github_com_johnnyeven_libtools_sqlx.DB) error {
+	configuration.Enabled = github_com_johnnyeven_libtools_courier_enumeration.BOOL__TRUE
+
+	table := configuration.T()
+	stmt := table.Delete().
+		Comment("Configuration.DeleteByConfigurationID").
+		Where(github_com_johnnyeven_libtools_sqlx_builder.And(
+			table.F("ConfigurationID").Eq(configuration.ConfigurationID),
+			table.F("Enabled").Eq(configuration.Enabled),
+		))
+
+	return db.Do(stmt).Scan(configuration).Err()
+}
+
+func (configuration *Configuration) UpdateByConfigurationIDWithMap(db *github_com_johnnyeven_libtools_sqlx.DB, fieldValues github_com_johnnyeven_libtools_sqlx_builder.FieldValues) error {
+
+	if _, ok := fieldValues["UpdateTime"]; !ok {
+		fieldValues["UpdateTime"] = github_com_johnnyeven_libtools_timelib.MySQLTimestamp(time.Now())
+	}
+
+	configuration.Enabled = github_com_johnnyeven_libtools_courier_enumeration.BOOL__TRUE
+
+	table := configuration.T()
+
+	delete(fieldValues, "ID")
+
+	stmt := table.Update().
+		Comment("Configuration.UpdateByConfigurationIDWithMap").
+		Set(table.AssignsByFieldValues(fieldValues)...).
+		Where(github_com_johnnyeven_libtools_sqlx_builder.And(
+			table.F("ConfigurationID").Eq(configuration.ConfigurationID),
+			table.F("Enabled").Eq(configuration.Enabled),
+		))
+
+	dbRet := db.Do(stmt).Scan(configuration)
+	err := dbRet.Err()
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, _ := dbRet.RowsAffected()
+	if rowsAffected == 0 {
+		return configuration.FetchByConfigurationID(db)
+	}
+	return nil
+}
+
+func (configuration *Configuration) UpdateByConfigurationIDWithStruct(db *github_com_johnnyeven_libtools_sqlx.DB, zeroFields ...string) error {
+	fieldValues := github_com_johnnyeven_libtools_sqlx.FieldValuesFromStructByNonZero(configuration, zeroFields...)
+	return configuration.UpdateByConfigurationIDWithMap(db, fieldValues)
+}
+
+func (configuration *Configuration) SoftDeleteByConfigurationID(db *github_com_johnnyeven_libtools_sqlx.DB) error {
+	configuration.Enabled = github_com_johnnyeven_libtools_courier_enumeration.BOOL__TRUE
+
+	table := configuration.T()
+
+	fieldValues := github_com_johnnyeven_libtools_sqlx_builder.FieldValues{}
+	fieldValues["Enabled"] = github_com_johnnyeven_libtools_courier_enumeration.BOOL__FALSE
+
+	if _, ok := fieldValues["UpdateTime"]; !ok {
+		fieldValues["UpdateTime"] = github_com_johnnyeven_libtools_timelib.MySQLTimestamp(time.Now())
+	}
+
+	stmt := table.Update().
+		Comment("Configuration.SoftDeleteByConfigurationID").
+		Set(table.AssignsByFieldValues(fieldValues)...).
+		Where(github_com_johnnyeven_libtools_sqlx_builder.And(
+			table.F("ConfigurationID").Eq(configuration.ConfigurationID),
+			table.F("Enabled").Eq(configuration.Enabled),
+		))
+
+	dbRet := db.Do(stmt).Scan(configuration)
+	err := dbRet.Err()
+	if err != nil {
+		dbErr := github_com_johnnyeven_libtools_sqlx.DBErr(err)
+		if dbErr.IsConflict() {
+			return configuration.DeleteByConfigurationID(db)
 		}
 		return err
 	}
