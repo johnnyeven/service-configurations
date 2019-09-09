@@ -27,18 +27,23 @@ func (req BatchCreateConfig) Path() string {
 func (req BatchCreateConfig) Output(ctx context.Context) (result interface{}, err error) {
 	db := global.Config.MasterDB.Get()
 	tx := sqlx.NewTasks(db)
+
 	for _, param := range req.Body {
-		tx = tx.With(func(db *sqlx.DB) error {
-			err = modules.CreateConfiguration(param, db, global.Config.ClientID)
-			if err != nil {
-				return err
-			}
-			return nil
-		})
+		tx = tx.With(GetTransaction(param))
 	}
 
 	if err = tx.Do(); err != nil {
 		logrus.Errorf("[BatchCreateConfig] transaction modules.CreateConfiguration err: %v, req: %+v", err, req.Body)
 	}
 	return
+}
+
+func GetTransaction(req modules.CreateConfigurationBody) func(db *sqlx.DB) error {
+	return func(db *sqlx.DB) error {
+		err := modules.CreateConfiguration(req, db, global.Config.ClientID)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
 }
