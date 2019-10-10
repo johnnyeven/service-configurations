@@ -32,7 +32,7 @@ var Config = struct {
 	},
 	Server: transport_http.ServeHTTP{
 		WithCORS: true,
-		Port:     8000,
+		Port:     8002,
 	},
 
 	MasterDB: &mysql.MySQL{
@@ -52,7 +52,8 @@ var Config = struct {
 
 	ClientID: &client_id.ClientID{
 		Client: client.Client{
-			Host: "service-id.profzone.service.profzone.net",
+			Host: "localhost",
+			Port: 8001,
 		},
 	},
 }
