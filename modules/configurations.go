@@ -30,6 +30,7 @@ func CreateConfiguration(req CreateConfigurationBody, db *sqlx.DB, clientID clie
 		StackID:         req.StackID,
 		Key:             req.Key,
 		Value:           req.Value,
+		Remark:          req.Remark,
 	}
 
 	return model.Create(db)
